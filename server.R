@@ -60,9 +60,6 @@ shinyServer(function(input, output) {
           #Record whether each player is drafted or not
           tier_dataf$drafted<-ifelse(tier_dataf$PlayerName %in% myValues$dList,1,0)
           
-          #Removes points excluded by the slider
-          #tier_dataf[tier_dataf$Pos.Rank<=max(input$range) & tier_dataf$Pos.Rank>=min(input$range),]
-          
           #Return data based on user selection to see drafted players or not
           if(input$drft=="Yes"){
                tier_dataf
