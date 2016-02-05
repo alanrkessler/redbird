@@ -48,5 +48,10 @@ shinyUI(navbarPage("Fantasy Baseball Draft App",
                                     #min = 1, max = 500, value = c(1,50),width=800)
                    )
               )
+     ),
+     tabPanel("Help",
+              fluidPage(
+                   includeMarkdown("README.md")     
+              )
      )
      ))

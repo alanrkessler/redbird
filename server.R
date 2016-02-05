@@ -12,7 +12,7 @@ shinyServer(function(input, output) {
      
      #Save version of the draft sheet without drafted players
      filter <- reactive({
-          all_players[!(all_players$PlayerName %in% myValues$dList),]
+          all_players[!(all_players$PlayerName %in% myValues$dList),-6]
      })
      
      #Display the top 25 entries of the draft sheet
