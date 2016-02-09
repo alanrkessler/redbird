@@ -85,7 +85,12 @@ shinyServer(function(input, output) {
      
      #Remove points excluded by the slider
      filterp <- reactive({
-          filterp0()[filterp0()$Pos.Rank<=max(input$range) & filterp0()$Pos.Rank>=min(input$range),]
+          if(input$xvar=="Pos.Rank") {
+               filterp0()[filterp0()$Pos.Rank<=max(input$range) & filterp0()$Pos.Rank>=min(input$range),]
+          }
+          else {
+               filterp0()[filterp0()$Ovr.Rank<=max(input$range) & filterp0()$Ovr.Rank>=min(input$range),]
+          }
      })
      
      #Function for generating hover tool tip text to show: 
