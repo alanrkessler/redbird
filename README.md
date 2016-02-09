@@ -2,6 +2,8 @@
 
 -   The app is hosted on [shinyapps.io](https://alanrkessler.shinyapps.io/redbird/)
 
+-   The code can be found on [github](https://github.com/alanrkessler/redbird)
+
 ### Importing Data
 
 -   Data is from the [Fangraphs Auction Calculator](http://www.fangraphs.com/auctiontool.aspx).
