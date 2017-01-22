@@ -7,6 +7,12 @@ For the last couple of years, I have been in a fantasy baseball league with arou
 
 I needed a draft cheat sheet that reflected the unusual structure of the league and could be updated as players were drafted. The result is this application in Shiny, my first.
 
+#### Link to the App
+
+-   The app is hosted on [shinyapps.io](https://alanrkessler.shinyapps.io/redbird/)
+
+-   The code can be found on [github](https://github.com/alanrkessler/redbird)
+
 #### Limitations
 
 The app uses input from [Fangraphs](http://www.fangraphs.com), so any limitations in their methodology would also apply here. That methodology accounts for the relative value of different positions and each players contribution to the fantasy team's tracked stats.
@@ -18,12 +24,6 @@ For example, you have drafted almost all of your starting pitchers. You have one
 Here is another example. Say you have drafted a team so far that is not going to steal many bases. For the next player you draft, should you select someone that can steal bases to boost that stat or give up on steals knowing that one player will not win you many match-ups? You could argue that giving up the stat could allow you to strenghten other stats. Again, the draft sheet does not know which players you have on your team and will not help in this determination.
 
 In these cases, you need to use your judgment.
-
-#### Link to the App
-
--   The app is hosted on [shinyapps.io](https://alanrkessler.shinyapps.io/redbird/)
-
--   The code can be found on [github](https://github.com/alanrkessler/redbird)
 
 #### Importing Data
 
@@ -40,6 +40,8 @@ In these cases, you need to use your judgment.
 -   As players are drafted, type each player's name into the text box and press delete.
 
 -   Refresh the application to reset the table.
+
+<img src="sheet.png" width="800px" />
 
 #### Player Tiers
 
@@ -63,3 +65,5 @@ In these cases, you need to use your judgment.
 -   The user can select whether to plot players that are no longer available.
 
 -   The slider below the plot adjusts the x-axis.
+
+<img src="plot.png" width="800px" />
