@@ -53,6 +53,10 @@ shinyUI(navbarPage("Fantasy Baseball Draft App",
                    ),
                    fluidRow(align = "center",
                         uiOutput("ui")
+                   ),
+                   fluidRow(align = "center",
+                            h4("ADP by Position Rank"),
+                            ggvisOutput("plot2")
                    )
               )
      ),

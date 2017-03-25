@@ -14,12 +14,12 @@ pitchers <- read.csv("./data/pitchers.csv")
 
 # Select variables using a standard naming and switch first and last names
 b <- batters %>% 
-  select(PlayerName, Team, POS, PA.IP = PA, Dollars) %>% 
+  select(PlayerName, Team, POS, PA.IP = PA, ADP, Dollars) %>% 
   mutate(PlayerName = paste0(word(PlayerName, -1), 
                              ", ", word(PlayerName, 1, -2)))
 
 p <- pitchers %>% 
-  select(PlayerName, Team, POS, PA.IP = IP, Dollars) %>% 
+  select(PlayerName, Team, POS, PA.IP = IP, ADP, Dollars) %>% 
   mutate(PlayerName = paste0(word(PlayerName, -1),
                              ", ", word(PlayerName, 1, -2)))
 # Format Dollars 
@@ -72,7 +72,7 @@ player.tier <- function(pos = "C", spts = 1, flr = 200) {
    select(-rank)  # Drop rank column
   
   # Rename tier based on position
-  colnames(fil.final)[7] <- paste("Tier", pos, sep = ".")
+  colnames(fil.final)[8] <- paste("Tier", pos, sep = ".")
   
   # Return tiers for the selected position
   fil.final
@@ -82,32 +82,32 @@ player.tier <- function(pos = "C", spts = 1, flr = 200) {
 tier.data <- full_join(player.tier("C", 1, 200),
                        player.tier("1B", 1, 200),
                        by = c("PlayerName", "Team", "POS", 
-                              "PA.IP", "Dollars", "Ovr.Rank")) %>%
+                              "PA.IP", "Dollars", "Ovr.Rank", "ADP")) %>%
   full_join(., player.tier("2B", 1, 200), by = c("PlayerName", "Team", "POS", 
                                                  "PA.IP", "Dollars", 
-                                                 "Ovr.Rank")) %>%
+                                                 "Ovr.Rank", "ADP")) %>%
   full_join(., player.tier("3B", 1, 200), by = c("PlayerName", "Team", "POS", 
                                                  "PA.IP", "Dollars", 
-                                                 "Ovr.Rank")) %>%
+                                                 "Ovr.Rank", "ADP")) %>%
   full_join(., player.tier("SS", 1, 200), by = c("PlayerName", "Team", "POS", 
                                                  "PA.IP", "Dollars", 
-                                                 "Ovr.Rank")) %>%
+                                                 "Ovr.Rank", "ADP")) %>%
   full_join(., player.tier("OF", 3, 200), by = c("PlayerName", "Team", "POS", 
                                                  "PA.IP", "Dollars", 
-                                                 "Ovr.Rank")) %>%
+                                                 "Ovr.Rank", "ADP")) %>%
   full_join(., player.tier("SP", 4, 50), by = c("PlayerName", "Team", "POS", 
                                                  "PA.IP", "Dollars", 
-                                                 "Ovr.Rank")) %>%
-  full_join(., player.tier("RP", 1, 20), by = c("PlayerName", "Team", "POS", 
+                                                 "Ovr.Rank", "ADP")) %>%
+  full_join(., player.tier("RP", 1, 50), by = c("PlayerName", "Team", "POS", 
                                                  "PA.IP", "Dollars", 
-                                                 "Ovr.Rank")) %>%
-  full_join(., player.tier("P", 2, 20), by = c("PlayerName", "Team", "POS", 
+                                                 "Ovr.Rank", "ADP")) %>%
+  full_join(., player.tier("P", 2, 50), by = c("PlayerName", "Team", "POS", 
                                                  "PA.IP", "Dollars", 
-                                                 "Ovr.Rank")) %>%
+                                                 "Ovr.Rank", "ADP")) %>%
   arrange(desc(Dollars))
 
 # Calculate max tier
-tier.data$Tier <- do.call(pmin, c(tier.data[7:15], na.rm=T))
+tier.data$Tier <- do.call(pmin, c(tier.data[8:16], na.rm=T))
 
 # Create lists for selectInputs
 # Positions including "All" (for draft sheet filter)
@@ -119,7 +119,7 @@ xaxis <- c("Pos.Rank", "Ovr.Rank")
 names(xaxis) <- c("Position Rank", "Overall Rank")
 
 # Generate tier table before the draft
-tier.start <- cbind(1:5, as.data.frame(lapply(tier.data[, 7:15], table))[, seq(2, ncol(tier.data[, 7:15]) * 2, by = 2)])
+tier.start <- cbind(1:5, as.data.frame(lapply(tier.data[, 8:16], table))[, seq(2, ncol(tier.data[, 8:16]) * 2, by = 2)])
 names(tier.start) <- c("Tier", "Pos.C", "Pos.1B", "Pos.2B", "Pos.3B", "Pos.SS",
                        "Pos.OF", "Pos.SP", "Pos.RP", "Pos.P")
 
@@ -130,7 +130,7 @@ autocomplete.list <- all.players %>% select(PlayerName)
 all.players <- tier.data %>% 
   select(PlayerName, Tier) %>%
   left_join(., all.players, by = "PlayerName") %>%
-  select(PlayerName, Team, POS, Tier, PA.IP, Dollars, Ovr.Rank)
+  select(ADP, PlayerName, Team, POS, Tier, PA.IP, Dollars, Ovr.Rank)
 
 # List for team drop down
 teams.all <- c("All", as.character(sort(unique(all.players$Team))))

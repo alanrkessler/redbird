@@ -2,20 +2,26 @@ shinyServer(function(input, output) {
      
      # tabPanel 1 - Draft Board
      
-     # Add drafted (deleted) players to a list
+     # Add drafted (deleted) players to a list and add a pick counter
      myValues <- reactiveValues()
      observe({
+          myValues$counter <- 1
           if(input$delete.button == 0)
               return()
           isolate({
               myValues$dList <- c(isolate(myValues$dList), input$text)
+              myValues$counter <- myValues$counter + 1
           })
           
      })
      
      # Save version of the draft sheet without drafted players
+     # Add dynamic probability of pick
      filter <- reactive({
-          all.players[!(all.players$PlayerName %in% myValues$dList),-7]
+          all.players[!(all.players$PlayerName %in% myValues$dList), -8] %>%
+         rowwise() %>%
+         mutate(ProbPicked = round(pnorm(myValues$counter, ADP, max(ADP, 36)*(0.42)), 3),
+                ProbPickedRound = round(1 - (1 - ProbPicked)^18, 3))
      })
      
      # Display the top 25 entries of the draft sheet
@@ -40,7 +46,7 @@ shinyServer(function(input, output) {
      # Save a version of the tier data without drafted players
      tier_current <- reactive({
           tier_dataf <- tier.data[!(tier.data$PlayerName %in% myValues$dList),]
-          tierf <- cbind(1:5,as.data.frame(lapply(tier_dataf[,7:15],table))[,seq(2, ncol(tier_dataf[,7:15])*2, by = 2)])
+          tierf <- cbind(1:5,as.data.frame(lapply(tier_dataf[,8:16],table))[,seq(2, ncol(tier_dataf[,8:16])*2, by = 2)])
           names(tierf) <- c("Tier", "Pos.C", "Pos.1B", "Pos.2B", "Pos.3B", 
                             "Pos.SS", "Pos.OF", "Pos.SP", "Pos.RP", "Pos.P")
           tierf
@@ -153,5 +159,41 @@ shinyServer(function(input, output) {
      })
      
      vis %>% bind_shiny("plot1")
+     
+     #Create plot
+     vis2 <- reactive({
+       
+       #Translate x-axis selection
+       xvar <- prop("x", as.symbol(input$xvar))
+       xvar_name <- names(xaxis)[xaxis == input$xvar]
+       
+       #Select column for displaying tier by color
+       if(input$pos == "P"){
+         tier_plot <- as.character(filterp()$Tier.P)
+       }
+       else {
+         tier_plot <- as.character(filterp()[,grep(input$pos, names(filterp()))])
+       }
+       tvar <- prop("fill", as.symbol("tier_plot"))
+       
+       filterp() %>%
+         ggvis(x = xvar, y = ~ADP) %>%
+         layer_points(size := 50, size.hover := 200,
+                      fillOpacity := 0.5, fillOpacity.hover := 0.9, 
+                      stroke := "black",key:=~Ovr.Rank,fill=tvar, shape=~factor(drafted))%>%
+         add_axis("x", title = xvar_name) %>%
+         add_axis("y", title = "ADP") %>%
+         add_legend("fill", title = "Tier", values = c("1", "2", "3", "4", "5")) %>%
+         add_legend("shape", title = "Drafted", values = c("Undrafted", "Drafted"),orient="left") %>%
+         add_tooltip(player_tooltip, "hover") %>%
+         scale_nominal("fill", domain = c("1", "2", "3", "4", "5"),
+                       range = c("red", "orange", "yellow", "green", "blue")) %>%
+         scale_nominal("shape", domain = c("0", "1"),
+                       range = c("circle", "cross")) %>%
+         scale_numeric("x", domain = input$range, clamp = TRUE) %>%
+         set_options(width = 900, height = 450)
+     })
+     
+     vis2 %>% bind_shiny("plot2")
      
 })
