@@ -4,7 +4,8 @@ shinyUI(navbarPage("Fantasy Baseball Draft App",
                fluidRow(align="left",
                         
                     # Text input to remove players when they are drafted
-                    column(4, style='padding:0px;', strong('Player'), div(style = "height:6px;background-color: white;"),
+                    column(4, style='padding:0px;', strong('Player'), 
+                           div(style = "height:6px;background-color: white;"),
                            textInput.typeahead(id = "text",
                                                placeholder = "", 
                                                local = autocomplete.list,
@@ -12,23 +13,24 @@ shinyUI(navbarPage("Fantasy Baseball Draft App",
                                                tokens = c(1:dim(autocomplete.list)[1]),
                                                template="<p class='repo-language'>{{info}}</p> <p class='repo-name'>{{PlayerName}}</p>"),
                            div(style = "height:6px;background-color: white;"),
-                           # Delete
-                           shiny::actionButton(inputId = "delete.button", label = "Delete", icon("paper-plane"), 
-                                               style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
                            # Draft
-                           shiny::actionButton(inputId = "delete.button", label = "Delete", icon("paper-plane"), 
-                                               style="color: #fff; background-color: #337ab7; border-color: #2e6da4")),
+                           shiny::actionButton(inputId = "draft.button", 
+                                               label = "Draft", width = "75px", 
+                                               icon("check"), 
+                                               style="color: #fff; background-color: #74C476; border-color: #74C476"),
+                           # Delete (Someone else drafted this player)
+                           shiny::actionButton(inputId = "delete.button", 
+                                               label = "Delete", width = "75px", 
+                                               icon("remove"), 
+                                               style="color: #fff; background-color: #FB6A4A; border-color: #FB6A4A")),
                     
                     # Selection list for position
-                    column(4, offset = 0, selectInput('posa', 'Position', positions.all, width = '50%'), selectInput('teama', 'Team', teams.all, width = '50%')),
+                    column(4, offset = 0, 
+                           selectInput('posa', 'Position', 
+                                       positions.all, width = '50%'), 
+                           selectInput('teama', 'Team', 
+                                       teams.all, width = '50%'))
                     
-                    # Delete button 
-                    #column(4, div(style = "height:6px;background-color: white;"),
-                    #       actionButton(inputId = "delete.button", label = "Delete")),
-                    shiny::actionButton(inputId = "delete.button", label = "Delete", icon("paper-plane"), 
-                                 style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-                    shiny::actionButton(inputId = "delete.button", label = "Delete", icon("paper-plane"), 
-                                        style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
                ),
                fluidRow(align = "center",
                     # Draft sheet
@@ -36,15 +38,16 @@ shinyUI(navbarPage("Fantasy Baseball Draft App",
                )
           )
      ),
-     tabPanel("Player Tiers",
+     tabPanel("My Team",
               fluidPage(
                    fluidRow(align = "center",
                         # Display tiers after removing drafted players
-                        h4("Current Tiers")
+                        h4("My Players"),
+                        DT::dataTableOutput("cteam")
                    ),
                    fluidRow(align = "center",
                         # Display tiers at the start of the draft
-                        h4("Starting Tiers")
+                        h4("Draft Log")
                    )
               )
      ),

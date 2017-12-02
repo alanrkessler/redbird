@@ -2,23 +2,35 @@ shinyServer(function(input, output) {
      
      # tabPanel 1 - Draft Board
      
-     # Add drafted (deleted) players to a list and add a pick counter
+     # Add deleted players to a list
      myValues <- reactiveValues()
      observe({
-          myValues$counter <- 1
           if(input$delete.button == 0)
               return()
           isolate({
               myValues$dList <- c(isolate(myValues$dList), input$text)
-              myValues$counter <- myValues$counter + 1
           })
           
      })
      
-     # Save version of the draft sheet without drafted players
-     # Add dynamic probability of pick
+     # Add drafted players to two lists
+     observe({
+       if(input$draft.button == 0)
+         return()
+       isolate({
+         myValues$dList <- c(isolate(myValues$dList), input$text)
+         myValues$teamList <- c(isolate(myValues$teamList), input$text)
+       })
+       
+     })
+     
+     # Save version of the draft sheet without drafted/deleted players
      filter <- reactive({
           all.players[!(all.players$PlayerName %in% myValues$dList), -7]
+     })
+     
+     cteam <- reactive({
+       all.players[(all.players$PlayerName %in% myValues$teamList), -7]
      })
      
      # Display the top 25 entries of the draft sheet
@@ -35,5 +47,11 @@ shinyServer(function(input, output) {
           else {
                DT::datatable(filter(), options = list(pageLength = 25)) 
           }
+     })
+     
+     
+     # Display current team
+     output$cteam <- DT::renderDataTable({
+       DT::datatable(cteam())
      })
 })
