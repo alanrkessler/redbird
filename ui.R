@@ -41,14 +41,14 @@ shinyUI(navbarPage("Fantasy Baseball Draft App",
      tabPanel("My Team",
               fluidPage(
                    fluidRow(align = "left",
-                        # Display tiers after removing drafted players
                         h4("My Players"),
-                        selectInput('test1', 'Testing', c("Baseline")),
+                        column(4, 
+                               selectInput('p2.input', 'Catcher', 
+                                           c("Baseline"), width = '60%')),
+                        column(4,
+                               selectInput('p1.input', 'Pitcher', 
+                                           c("Baseline"), width = '60%')),
                         DT::dataTableOutput("cteam")
-                   ),
-                   fluidRow(align = "center",
-                        # Display tiers at the start of the draft
-                        h4("Draft Log")
                    )
               )
      ),

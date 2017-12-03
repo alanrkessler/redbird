@@ -23,8 +23,7 @@ p <- read_csv("./data/pitchers.csv") %>%
 # Format Dollars 
 allPlayers <- rbind(b, p) %>%  # Combine batters and pitchers data
   mutate(Dollars = as.numeric(gsub(" ", "", chartr('$)(', '  -', Dollars)))) %>%
-  arrange(desc(Dollars)) %>%  # Sort by dollars descending
-  dplyr::mutate(Ovr.Rank = 1:n())  # Create ranking id
+  arrange(desc(Dollars)) # Sort by dollars descending
 
 # Import Depth Chart Projections
 dcb <- read_csv("./data/dc_batters.csv") %>%

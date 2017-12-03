@@ -3,7 +3,10 @@ shinyServer(function(input, output, session) {
      # tabPanel 1 - Draft Board
      
      # Add deleted players to a list
-     myValues <- reactiveValues()
+     myValues <- reactiveValues(p2List = "Baseline",
+                                p2Sel = "Baseline",
+                                p1List = "Baseline",
+                                p1Sel = "Baseline")
      observe({
           if(input$delete.button == 0)
               return()
@@ -26,12 +29,12 @@ shinyServer(function(input, output, session) {
      
      # Save version of the draft sheet without deleted players
      filter <- reactive({
-          allPlayers[!(allPlayers$PlayerName %in% myValues$dList), -7]
+          allPlayers[!(allPlayers$PlayerName %in% myValues$dList), ]
      })
      
      # Save dataframe of players drafted 
      cteam <- reactive({
-       allPlayers[(allPlayers$PlayerName %in% myValues$teamList), -7]
+       allPlayers[(allPlayers$PlayerName %in% myValues$teamList), ]
      })
      
      # Display the top 25 entries of the draft sheet
@@ -69,10 +72,27 @@ shinyServer(function(input, output, session) {
      
      # Test drop down for positions
      observe({
+       if(input$draft.button == 0)
+         return()
        myValues$teamList
-       updateSelectInput(session = session, inputId = "test1", 
-                         choices = c("Baseline", myValues$teamList),
-                         selected = myValues$teamList[length(myValues$teamList)])
+       if (grepl("C", allPlayers[allPlayers$PlayerName == tail(myValues$teamList, 1), ]$POS) == TRUE) {
+         myValues$p2List <- c(isolate(myValues$p2List), tail(myValues$teamList, 1))
+         if (isolate(myValues$p2Sel) == "Baseline") {
+           myValues$p2Sel <- tail(myValues$teamList, 1)
+         }
+         updateSelectInput(session = session, inputId = "p2.input", 
+                           choices = myValues$p2List,
+                           selected = myValues$p2Sel)
+       }
+       else if (grepl("P", allPlayers[allPlayers$PlayerName == tail(myValues$teamList, 1), ]$POS) == TRUE) {
+         myValues$p1List <- c(isolate(myValues$p1List), tail(myValues$teamList, 1))
+         if (isolate(myValues$p1Sel) == "Baseline") {
+           myValues$p1Sel <- tail(myValues$teamList, 1)
+         }
+         updateSelectInput(session = session, inputId = "p1.input", 
+                           choices = myValues$p1List,
+                           selected = myValues$p1Sel)
+       }
      })
      
 })
