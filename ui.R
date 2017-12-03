@@ -8,9 +8,9 @@ shinyUI(navbarPage("Fantasy Baseball Draft App",
                            div(style = "height:6px;background-color: white;"),
                            textInput.typeahead(id = "text",
                                                placeholder = "", 
-                                               local = autocomplete.list,
+                                               local = autocompleteList,
                                                valueKey = "PlayerName",
-                                               tokens = c(1:dim(autocomplete.list)[1]),
+                                               tokens = c(1:dim(autocompleteList)[1]),
                                                template="<p class='repo-language'>{{info}}</p> <p class='repo-name'>{{PlayerName}}</p>"),
                            div(style = "height:6px;background-color: white;"),
                            # Draft
@@ -26,10 +26,10 @@ shinyUI(navbarPage("Fantasy Baseball Draft App",
                     
                     # Selection list for position
                     column(4, offset = 0, 
-                           selectInput('posa', 'Position', 
-                                       positions.all, width = '50%'), 
-                           selectInput('teama', 'Team', 
-                                       teams.all, width = '50%'))
+                           selectInput('pos.input', 'Position', 
+                                       positionsAll, width = '50%'), 
+                           selectInput('team.input', 'Team', 
+                                       teamsAll, width = '50%'))
                     
                ),
                fluidRow(align = "center",
@@ -40,9 +40,10 @@ shinyUI(navbarPage("Fantasy Baseball Draft App",
      ),
      tabPanel("My Team",
               fluidPage(
-                   fluidRow(align = "center",
+                   fluidRow(align = "left",
                         # Display tiers after removing drafted players
                         h4("My Players"),
+                        selectInput('test1', 'Testing', c("Baseline")),
                         DT::dataTableOutput("cteam")
                    ),
                    fluidRow(align = "center",

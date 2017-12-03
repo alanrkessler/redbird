@@ -1,4 +1,4 @@
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
      
      # tabPanel 1 - Draft Board
      
@@ -24,28 +24,38 @@ shinyServer(function(input, output) {
        
      })
      
-     # Save version of the draft sheet without drafted/deleted players
+     # Save version of the draft sheet without deleted players
      filter <- reactive({
-          all.players[!(all.players$PlayerName %in% myValues$dList), -7]
+          allPlayers[!(allPlayers$PlayerName %in% myValues$dList), -7]
      })
      
+     # Save dataframe of players drafted 
      cteam <- reactive({
-       all.players[(all.players$PlayerName %in% myValues$teamList), -7]
+       allPlayers[(allPlayers$PlayerName %in% myValues$teamList), -7]
      })
      
      # Display the top 25 entries of the draft sheet
      output$sheet <- DT::renderDataTable({
-          if (input$posa != "All" & input$teama == "All") {
-               DT::datatable(filter()[grepl(input$posa,filter()$POS) == TRUE,], options = list(pageLength = 25)) 
+          if (input$pos.input != "All" & input$team.input == "All") {
+               DT::datatable(filter()[grepl(input$pos.input, 
+                                            filter()$POS) == TRUE,], 
+                             options = list(pageLength = 25)) 
           }
-          else if (input$posa == "All" & input$teama != "All"){
-               DT::datatable(filter()[grepl(input$teama,filter()$Team) == TRUE,], options = list(pageLength = 25)) 
+          else if (input$pos.input == "All" & input$team.input != "All"){
+               DT::datatable(filter()[grepl(input$team.input, 
+                                            filter()$Team) == TRUE,], 
+                             options = list(pageLength = 25)) 
           }
-          else if (input$posa != "All" & input$teama != "All"){
-               DT::datatable(filter()[grepl(input$teama,filter()$Team) == TRUE & grepl(input$posa,filter()$POS) == TRUE,], options = list(pageLength = 25)) 
+          else if (input$pos.input != "All" & input$team.input != "All"){
+               DT::datatable(filter()[grepl(input$team.input, 
+                                            filter()$Team) == TRUE 
+                                      & grepl(input$pos.input,
+                                              filter()$POS) == TRUE,], 
+                             options = list(pageLength = 25)) 
           }
           else {
-               DT::datatable(filter(), options = list(pageLength = 25)) 
+               DT::datatable(filter(), 
+                             options = list(pageLength = 25)) 
           }
      })
      
@@ -54,4 +64,15 @@ shinyServer(function(input, output) {
      output$cteam <- DT::renderDataTable({
        DT::datatable(cteam())
      })
+     
+     # tab 2
+     
+     # Test drop down for positions
+     observe({
+       myValues$teamList
+       updateSelectInput(session = session, inputId = "test1", 
+                         choices = c("Baseline", myValues$teamList),
+                         selected = myValues$teamList[length(myValues$teamList)])
+     })
+     
 })
