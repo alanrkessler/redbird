@@ -74,7 +74,7 @@ shinyUI(navbarPage("Fantasy Baseball Draft App",
                                selectInput('p.input2', 'Pitcher', 
                                            c("Baseline"), width = '60%')),
                         
-                        DT::dataTableOutput("cteam")
+                        DT::dataTableOutput("teamProjB")
                    )
               )
      ),

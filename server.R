@@ -52,11 +52,6 @@ shinyServer(function(input, output, session) {
           allPlayers[!(allPlayers$PlayerName %in% myValues$dList), ]
      })
      
-     # Save dataframe of players drafted 
-     cteam <- reactive({
-       allPlayers[(allPlayers$PlayerName %in% myValues$teamList), ]
-     })
-     
      # Display the top 25 entries of the draft sheet
      output$sheet <- DT::renderDataTable({
           if (input$pos.input != "All" & input$team.input == "All") {
@@ -80,12 +75,6 @@ shinyServer(function(input, output, session) {
                DT::datatable(filter(), 
                              options = list(pageLength = 25)) 
           }
-     })
-     
-     
-     # Display current team
-     output$cteam <- DT::renderDataTable({
-       DT::datatable(cteam())
      })
      
      # tab 2
@@ -226,6 +215,16 @@ shinyServer(function(input, output, session) {
                            choices = myValues$pList,
                            selected = myValues$pSel2)
        }
+     })
+     
+     # Save dataframe of players drafted 
+     teamProjB <- reactive({
+       allPlayers[(allPlayers$PlayerName %in% myValues$teamList), ]
+     })
+     
+     # Display current team
+     output$teamProjB <- DT::renderDataTable({
+       DT::datatable(teamProjB())
      })
      
 })

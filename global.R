@@ -7,6 +7,8 @@ library(readr)
 
 # Number of teams in the league
 tms <- 18
+# Number of weeks in the season
+wks <- 24
 
 # Import batters and pitchers auction calculator results
 # Create standard naming and switch first and last names
@@ -29,14 +31,18 @@ allPlayers <- rbind(b, p) %>%  # Combine batters and pitchers data
 dcb <- read_csv("./data/dc_batters.csv") %>%
   select(Name, Team, PA, AB, H, R, SB, RBI, HR) %>%
   mutate(PlayerName = paste0(word(Name, -1), 
-                      ", ", word(Name, 1, -2))) %>%
-  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB)
+                      ", ", word(Name, 1, -2)),
+         AVG = H / AB) %>%
+  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
 
 dcp <- read_csv("./data/dc_pitchers.csv") %>%
   select(Name, Team, IP, W, SV, SO, ER, BB, H) %>%
   mutate(PlayerName = paste0(word(Name, -1), 
-                             ", ", word(Name, 1, -2))) %>%
-  select(PlayerName, Team, IP, W, SV, SO, ER, BB, H)
+                             ", ", word(Name, 1, -2)),
+         WHIP = (H + BB) / IP,
+         ERA = ER * 9 / IP,
+         BB_H = H + BB) %>%
+  select(PlayerName, Team, IP, W, SV, SO, ER, BB_H, WHIP, ERA)
   
 # Clean up environment
 rm(b, p)
