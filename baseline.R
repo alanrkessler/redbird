@@ -2,296 +2,164 @@
 # Create baseline and bReplacement level placeholders
 #####
 
-# Players with the same name are an outstanding issue
-
 # Set of batters to extract players from without bReplacement
 bnr <- allPlayers[grepl("P", allPlayers$POS) == FALSE, ]
 
-# C
+setClass(Class = "Baseline", 
+         representation(players = "data.frame", remaining = "data.frame"))
 
-# List of players eligible for positions in priority order
-pList <- bnr[grepl("C", bnr$POS) == TRUE, ]
-
-# Replacement level player creation
-# Replace average hits with the hits based on batting average
-bReplacement <- dcb[dcb$PlayerName %in% pList[19:24, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
-  mutate(PlayerName = "Replacement, C",
-         Team = "",
-         H = round(AVG * AB, 0)) %>%
-  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
+bReplacement1 <- function(pos, num, data){
+  # List of players eligible for positions in priority order
+  pList <- data[grepl(pos, bnr$POS) == TRUE, ]
   
-# Baseline level player creation
-# Replace average hits with the hits based on batting average 
-bCompetitor <- dcb[dcb$PlayerName %in% pList[7:12, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
-  mutate(PlayerName = "Baseline, C",
-         Team = "",
-         H = round(AVG * AB, 0)) %>%
-  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
+  # Middle third of draftees for the average
+  compRange <- round(quantile(1:tms*num, 0.33)):round(quantile(1:tms*num, 0.67))
+  
+  # Baseline level player creation
+  comp <- dcb[dcb$PlayerName %in% pList[compRange, ]$PlayerName, ] %>%
+    summarise_if(is.numeric, mean) %>%
+    mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
+    mutate(PlayerName = paste0("Baseline, ", pos),
+           Team = "",
+           H = round(AVG * AB, 0)) %>%
+    select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
+  
+  # Remove players already considered in the above position(s)
+  return(new("Baseline", players = comp, 
+             remaining = data[!(data$PlayerName %in% pList[compRange, ]$PlayerName), ]))
+  
+}
 
-# Remove players already considered in the above position(s)
-bnr <- bnr[!(bnr$PlayerName %in% pList$PlayerName), ]
+bBaseline <- bReplacement1("C", 1, bnr)
+bCompetitor <- bBaseline@players
+bnr <- bBaseline@remaining
 
-# SS
+bBaseline <- bReplacement1("SS", 1, bnr)
+bCompetitor <- rbind(bCompetitor, bBaseline@players)
+bnr <- bBaseline@remaining
 
-# List of players eligible for positions in priority order
-pList <- bnr[grepl("SS", bnr$POS) == TRUE, ]
+bBaseline <- bReplacement1("2B", 1, bnr)
+bCompetitor <- rbind(bCompetitor, bBaseline@players)
+bnr <- bBaseline@remaining
 
-# bReplacement level player creation
-# Replace average hits with the hits based on batting average
-rep <- dcb[dcb$PlayerName %in% pList[19:24, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
-  mutate(PlayerName = "Replacement, SS",
-         Team = "",
-         H = round(AVG * AB, 0)) %>%
-  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
+bBaseline <- bReplacement1("3B", 1, bnr)
+bCompetitor <- rbind(bCompetitor, bBaseline@players)
+bnr <- bBaseline@remaining
 
-bReplacement <- rbind(bReplacement, rep)
+bBaseline <- bReplacement1("OF", 3, bnr)
+bCompetitor <- rbind(bCompetitor, bBaseline@players)
+bnr <- bBaseline@remaining
 
-# Baseline level player creation
-# Replace average hits with the hits based on batting average 
-comp <- dcb[dcb$PlayerName %in% pList[7:12, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
-  mutate(PlayerName = "Baseline, SS",
-         Team = "",
-         H = round(AVG * AB, 0)) %>%
-  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
+bBaseline <- bReplacement1("1B", 1, bnr)
+bCompetitor <- rbind(bCompetitor, bBaseline@players)
+bnr <- bBaseline@remaining
 
-bCompetitor <- rbind(bCompetitor, comp)
+bReplacement2 <- function(pos, num, data){
+  # List of players eligible for positions in priority order
+  pList <- data[grepl(pos, bnr$POS) == TRUE, ]
+  
+  # Replacement level player creation
+  repl <- dcb[dcb$PlayerName %in% pList[tms*num+1:tms*num+6, ]$PlayerName, ] %>%
+    summarise_if(is.numeric, mean) %>%
+    mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
+    mutate(PlayerName = paste0("Replacement, ", pos),
+           Team = "",
+           H = round(AVG * AB, 0)) %>%
+    select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
+  
+  # Remove players already considered in the above position(s)
+  return(new("Baseline", players = repl, 
+             remaining = data[!(data$PlayerName %in% pList$PlayerName), ]))
+  
+}
 
-# Remove players already considered in the above position(s)
-bnr <- bnr[!(bnr$PlayerName %in% pList$PlayerName), ]
+bBaseline <- bReplacement2("C", 1, bnr)
+bCompetitor <- rbind(bCompetitor, bBaseline@players)
 
-# 2B
+bBaseline <- bReplacement2("SS", 1, bnr)
+bCompetitor <- rbind(bCompetitor, bBaseline@players)
 
-# List of players eligible for positions in priority order
-pList <- bnr[grepl("2B", bnr$POS) == TRUE, ]
+bBaseline <- bReplacement2("2B", 1, bnr)
+bCompetitor <- rbind(bCompetitor, bBaseline@players)
 
-# Replacement level player creation
-# Replace average hits with the hits based on batting average
-rep <- dcb[dcb$PlayerName %in% pList[19:24, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
-  mutate(PlayerName = "Replacement, 2B",
-         Team = "",
-         H = round(AVG * AB, 0)) %>%
-  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
+bBaseline <- bReplacement2("3B", 1, bnr)
+bCompetitor <- rbind(bCompetitor, bBaseline@players)
 
-bReplacement <- rbind(bReplacement, rep)
+bBaseline <- bReplacement2("OF", 3, bnr)
+bCompetitor <- rbind(bCompetitor, bBaseline@players)
 
-# Baseline level player creation
-# Replace average hits with the hits based on batting average 
-comp <- dcb[dcb$PlayerName %in% pList[7:12, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
-  mutate(PlayerName = "Baseline, 2B",
-         Team = "",
-         H = round(AVG * AB, 0)) %>%
-  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
+bBaseline <- bReplacement2("1B", 1, bnr)
+bCompetitor <- rbind(bCompetitor, bBaseline@players)
 
-bCompetitor <- rbind(bCompetitor, comp)
-
-# Remove players already considered in the above position(s)
-bnr <- bnr[!(bnr$PlayerName %in% pList$PlayerName), ]
-
-# 3B
-
-# List of players eligible for positions in priority order
-pList <- bnr[grepl("3B", bnr$POS) == TRUE, ]
-
-# Replacement level player creation
-# Replace average hits with the hits based on batting average
-rep <- dcb[dcb$PlayerName %in% pList[19:24, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
-  mutate(PlayerName = "Replacement, 3B",
-         Team = "",
-         H = round(AVG * AB, 0)) %>%
-  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
-
-bReplacement <- rbind(bReplacement, rep)
-
-# Baseline level player creation
-# Replace average hits with the hits based on batting average 
-comp <- dcb[dcb$PlayerName %in% pList[7:12, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
-  mutate(PlayerName = "Baseline, 3B",
-         Team = "",
-         H = round(AVG * AB, 0)) %>%
-  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
-
-bCompetitor <- rbind(bCompetitor, comp)
-
-# Remove players already considered in the above position(s)
-bnr <- bnr[!(bnr$PlayerName %in% pList$PlayerName), ]
-
-# OF
-
-# List of players eligible for positions in priority order
-pList <- bnr[grepl("OF", bnr$POS) == TRUE, ]
-
-# Replacement level player creation
-# Replace average hits with the hits based on batting average
-rep <- dcb[dcb$PlayerName %in% pList[55:60, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
-  mutate(PlayerName = "Replacement, OF",
-         Team = "",
-         H = round(AVG * AB, 0)) %>%
-  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
-
-bReplacement <- rbind(bReplacement, rep)
-
-# Baseline level player creation
-# Replace average hits with the hits based on batting average 
-comp <- dcb[dcb$PlayerName %in% pList[18:37, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
-  mutate(PlayerName = "Baseline, OF",
-         Team = "",
-         H = round(AVG * AB, 0)) %>%
-  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
-
-bCompetitor <- rbind(bCompetitor, comp)
-
-# Remove players already considered in the above position(s)
-bnr <- bnr[!(bnr$PlayerName %in% pList$PlayerName), ]
-
-# 1B
-
-# List of players eligible for positions in priority order
-pList <- bnr[grepl("1B", bnr$POS) == TRUE, ]
-
-# Replacement level player creation
-# Replace average hits with the hits based on batting average
-rep <- dcb[dcb$PlayerName %in% pList[19:24, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
-  mutate(PlayerName = "Replacement, 1B",
-         Team = "",
-         H = round(AVG * AB, 0)) %>%
-  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
-
-bReplacement <- rbind(bReplacement, rep)
-
-# Baseline level player creation
-# Replace average hits with the hits based on batting average 
-comp <- dcb[dcb$PlayerName %in% pList[7:12, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
-  mutate(PlayerName = "Baseline, 1B",
-         Team = "",
-         H = round(AVG * AB, 0)) %>%
-  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
-
-bCompetitor <- rbind(bCompetitor, comp)
+# Append to projections
+dcb <- rbind(dcb, bCompetitor)
 
 # Set of pitchers to extract players from without bReplacement
 pnr <- allPlayers[grepl("P", allPlayers$POS) == TRUE, ]
 
-# Append to projections
-dcp <- rbind(dcp, pCompetitor, pReplacement)
+pReplacement1 <- function(pos, num, data){
+  # List of players eligible for positions in priority order
+  pList <- data[grepl(pos, pnr$POS) == TRUE, ]
+  
+  # Middle third of draftees for the average
+  compRange <- round(quantile(1:tms*num, 0.33)):round(quantile(1:tms*num, 0.67))
+  
+  # Baseline level player creation
+  comp <- dcp[dcp$PlayerName %in% pList[compRange, ]$PlayerName, ] %>%
+    summarise_if(is.numeric, mean) %>%
+    mutate_at(c("IP", "W", "SV", "SO", "ER", "BB_H"), round, 0) %>%
+    mutate(PlayerName = paste0("Baseline, ", pos),
+           Team = "",
+           BB_H = round(WHIP * IP, 0),
+           ER = ERA * IP / 9) %>%
+    select(PlayerName, Team, IP, W, SV, SO, ER, BB_H, WHIP, ERA)
+  
+  # Remove players already considered in the above position(s)
+  return(new("Baseline", players = comp, 
+             remaining = data[!(data$PlayerName %in% pList[compRange, ]$PlayerName), ]))
+  
+}
 
-# SP
+pBaseline <- pReplacement1("SP", 4, pnr)
+pCompetitor <- pBaseline@players
+pnr <- pBaseline@remaining
 
-# List of playerss eligible for positions in priority order
-pList <- pnr[grepl("SP", pnr$POS) == TRUE, ]
+pBaseline <- pReplacement1("RP", 1, pnr)
+pCompetitor <- rbind(pCompetitor, pBaseline@players)
+pnr <- pBaseline@remaining
 
-# Replacement level player creation
-# Replace average hits with the hits based on batting average
-pReplacement <- dcp[dcp$PlayerName %in% pList[73:78, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("IP", "W", "SV", "SO", "ER", "BB_H"), round, 0) %>%
-  mutate(PlayerName = "Replacement, SP",
-         Team = "",
-         BB_H = round(WHIP * IP, 0),
-         ER = ERA * IP / 9) %>%
-  select(PlayerName, Team, IP, W, SV, SO, ER, BB_H, WHIP, ERA)
+pBaseline <- pReplacement1("P", 2, pnr)
+pCompetitor <- rbind(pCompetitor, pBaseline@players)
+pnr <- pBaseline@remaining
 
-# Baseline level player creation
-# Replace average hits with the hits based on batting average 
-pCompetitor <- dcp[dcp$PlayerName %in% pList[24:49, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("IP", "W", "SV", "SO", "ER", "BB_H"), round, 0) %>%
-  mutate(PlayerName = "Baseline, SP",
-         Team = "",
-         BB_H = round(WHIP * IP, 0),
-         ER = ERA * IP / 9) %>%
-  select(PlayerName, Team, IP, W, SV, SO, ER, BB_H, WHIP, ERA)
+pReplacement2 <- function(pos, num, data){
+  # List of players eligible for positions in priority order
+  pList <- data[grepl(pos, pnr$POS) == TRUE, ]
+  
+  # Baseline level player creation
+  repl <- dcp[dcp$PlayerName %in% pList[tms*num+1:tms*num+6, ]$PlayerName, ] %>%
+    summarise_if(is.numeric, mean) %>%
+    mutate_at(c("IP", "W", "SV", "SO", "ER", "BB_H"), round, 0) %>%
+    mutate(PlayerName = paste0("Replacement, ", pos),
+           Team = "",
+           BB_H = round(WHIP * IP, 0),
+           ER = ERA * IP / 9) %>%
+    select(PlayerName, Team, IP, W, SV, SO, ER, BB_H, WHIP, ERA)
+  
+  # Remove players already considered in the above position(s)
+  return(new("Baseline", players = repl, 
+             remaining = data[!(data$PlayerName %in% pList$PlayerName), ]))
+  
+}
 
-# Remove players already considered in the above position(s)
-pnr <- pnr[!(pnr$PlayerName %in% pList[1:72, ]$PlayerName), ]
+pBaseline <- pReplacement2("SP", 4, pnr)
+pCompetitor <- rbind(pCompetitor, pBaseline@players)
 
-# RP
+pBaseline <- pReplacement2("RP", 1, pnr)
+pCompetitor <- rbind(pCompetitor, pBaseline@players)
 
-# List of playerss eligible for positions in priority order
-pList <- pnr[grepl("RP", pnr$POS) == TRUE, ]
-
-# Replacement level player creation
-# Replace average hits with the hits based on batting average
-rep <- dcp[dcp$PlayerName %in% pList[19:24, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("IP", "W", "SV", "SO", "ER", "BB_H"), round, 0) %>%
-  mutate(PlayerName = "Replacement, RP",
-         Team = "",
-         BB_H = round(WHIP * IP, 0),
-         ER = ERA * IP / 9) %>%
-  select(PlayerName, Team, IP, W, SV, SO, ER, BB_H, WHIP, ERA)
-
-pReplacement <- rbind(pReplacement, rep)
-
-# Baseline level player creation
-# Replace average hits with the hits based on batting average 
-comp <- dcp[dcp$PlayerName %in% pList[7:12, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("IP", "W", "SV", "SO", "ER", "BB_H"), round, 0) %>%
-  mutate(PlayerName = "Baseline, RP",
-         Team = "",
-         BB_H = round(WHIP * IP, 0),
-         ER = ERA * IP / 9) %>%
-  select(PlayerName, Team, IP, W, SV, SO, ER, BB_H, WHIP, ERA)
-
-pCompetitor <- rbind(pCompetitor, comp)
-
-# Remove players already considered in the above position(s)
-pnr <- pnr[!(pnr$PlayerName %in% pList[1:18, ]$PlayerName), ]
-
-# P
-
-# List of playerss eligible for positions in priority order
-pList <- pnr[grepl("P", pnr$POS) == TRUE, ]
-
-# Replacement level player creation
-# Replace average hits with the hits based on batting average
-rep <- dcp[dcp$PlayerName %in% pList[37:42, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("IP", "W", "SV", "SO", "ER", "BB_H"), round, 0) %>%
-  mutate(PlayerName = "Replacement, P",
-         Team = "",
-         BB_H = round(WHIP * IP, 0),
-         ER = ERA * IP / 9) %>%
-  select(PlayerName, Team, IP, W, SV, SO, ER, BB_H, WHIP, ERA)
-
-pReplacement <- rbind(pReplacement, rep)
-
-# Baseline level player creation
-# Replace average hits with the hits based on batting average 
-comp <- dcp[dcp$PlayerName %in% pList[13:24, ]$PlayerName, ] %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate_at(c("IP", "W", "SV", "SO", "ER", "BB_H"), round, 0) %>%
-  mutate(PlayerName = "Baseline, P",
-         Team = "",
-         BB_H = round(WHIP * IP, 0),
-         ER = ERA * IP / 9) %>%
-  select(PlayerName, Team, IP, W, SV, SO, ER, BB_H, WHIP, ERA)
-
-pCompetitor <- rbind(pCompetitor, comp)
+pBaseline <- pReplacement2("P", 2, pnr)
+pCompetitor <- rbind(pCompetitor, pBaseline@players)
 
 # Append to projections
-dcp <- rbind(dcp, pCompetitor, pReplacement)
+dcp <- rbind(dcp, pCompetitor)

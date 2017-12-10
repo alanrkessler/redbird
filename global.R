@@ -5,6 +5,10 @@ library(stringr)
 library(dplyr)
 library(readr)
 
+# Players with the same name are an outstanding issue
+# Types of stats is an issue
+# Positions and number of teams is an issue
+
 # Number of teams in the league
 tms <- 18
 # Number of weeks in the season
