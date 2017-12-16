@@ -1,38 +1,42 @@
-# Batter simulations
-b_sim <- function(n, wks, df) {
-  df <- df[df$PA > 50, ]
-  abSim <- rep(df$AB / wks, n)
-  hSim <- rpois(n*length(df$HR), df$H / (df$PA / wks))
-  hrSim <- NULL
-  for (i in hSim){
-    hrSim <- rbind(hrSim, df$HR / df$H)
-  }
-  hrSim <- rbinom(1, hSim, df$HR / df$H) 
-  # Apply a rough flattening?
-  # Assume games per week and PAs per game are constant
-  # Simulate Hits per PA df$H / (df$PA / wks)
-  # Simulate HRs per Hit (df$HR / df$H) * hSim
-  # Simulate other ways to get on base - get (OBP * PA - H) / (df$PA / wks)
-  # Simulate SB per all ways to get on base (df$SB / df$onbase) * obSim
-  # Simulate Runs per all ways to get on base (df$R / df$onbase) * obSim
-  # Simulate RBIs per all ways to get on base (df$RBI / df$onbase) * obSim
-  
-  rSim <- rpois(n*length(df$HR), df$R / (df$PA / wks))
-  rbiSim <- rpois(n*length(df$HR), df$RBI / (df$PA / wks))
-  sbSim <- rpois(n*length(df$HR), df$SB / (df$PA / wks))
-  hSim <- rpois(n*length(df$HR), df$H / (df$PA / wks))
-  SimNum <- rep(1:n, length(df$HR))
-  df <- df[as.numeric(rep(row.names(df), n)), ] 
-  return(cbind(SimNum, df, hrSim, rSim, rbiSim, sbSim, hSim, abSim))
-}
-
 set.seed(1)
-df <- dcb[dcb$PA > 50, ]
-hSim <- rpois(100*length(df$HR), df$H / (df$PA / wks))
-a <- NULL
-for (i in hSim){
-  a <- rbind(a, rbinom(1, i, 0.25))
-}
+n <- 10000
+wks <- 24
+
+# PAs are fixed evenly each week
+bSims <- dcb[as.numeric(rep(row.names(dcb), n)), ] %>%
+  filter(PA > 50) %>%
+  mutate(paSim = round(PA / wks))
+
+# Simulate ABs
+abSim <- rhyper(length(bSims$PA), bSims$AB, bSims$PA - bSims$AB, bSims$paSim)
+bSims <- cbind(bSims, abSim)
+
+# Not getting an AB will be a proxy for getting on base
+noabSim <- bSims$paSim - bSims$abSim 
+bSims <- cbind(bSims, noabSim)
+
+# Simulate hits from ABs
+hSim <- rhyper(length(bSims$PA), bSims$H, bSims$AB - bSims$H, bSims$abSim)
+bSims <- cbind(bSims, hSim)
+
+# Simulate home runs from hits
+hrSim <- rhyper(length(bSims$PA), bSims$HR, bSims$H - bSims$HR, bSims$hSim)
+bSims <- cbind(bSims, hrSim)
+
+# Simulate steals from hits and the proxy for reaching base
+sbSim <- rpois(bSims$hSim + bSims$noabSim, 
+               bSims$SB / (bSims$H + bSims$PA - bSims$AB))
+
+# Simulate runs from hits and the proxy for reaching base (not realistic)
+rSim <- rpois(bSims$hSim + bSims$noabSim, 
+               bSims$R / (bSims$H + bSims$PA - bSims$AB))
+
+# Simulate rbis from hits and the proxy for reaching base (not realistic)
+rbiSim <- rpois(bSims$hSim + bSims$noabSim, 
+               bSims$RBI / (bSims$H + bSims$PA - bSims$AB))
+bSims <- cbind(bSims, rbiSim, rSim, sbSim)
+
+
 
 
 # Pitcher simulations
@@ -51,7 +55,7 @@ p_sim <- function(n, wks, df) {
 }
 
 set.seed(2)
-c <- b_sim(1000, 24, dcb)
+c <- b_sim(100, 24, dcb)
 d <- p_sim(1000, 24, dcp)
 
 #example data
