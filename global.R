@@ -33,11 +33,12 @@ allPlayers <- rbind(b, p) %>%  # Combine batters and pitchers data
 
 # Import Depth Chart Projections
 dcb <- read_csv("./data/dc_batters.csv") %>%
-  select(Name, Team, PA, AB, H, R, SB, RBI, HR) %>%
+  select(Name, Team, PA, AB, H, R, SB, RBI, HR, OBP) %>%
   mutate(PlayerName = paste0(word(Name, -1), 
                       ", ", word(Name, 1, -2)),
-         AVG = H / AB) %>%
-  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
+         AVG = H / AB,
+         OnBase = OBP * PA) %>%
+  select(PlayerName, Team, PA, AB, H, OnBase, HR, R, RBI, SB, AVG, OBP)
 
 dcp <- read_csv("./data/dc_pitchers.csv") %>%
   select(Name, Team, IP, W, SV, SO, ER, BB, H) %>%

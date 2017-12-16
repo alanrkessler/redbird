@@ -21,8 +21,9 @@ bReplacement1 <- function(pos, num, data){
     mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
     mutate(PlayerName = paste0("Baseline, ", pos),
            Team = "",
-           H = round(AVG * AB, 0)) %>%
-    select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
+           H = round(AVG * AB, 0),
+           OnBase = round(OBP * PA, 0)) %>%
+    select(PlayerName, Team, PA, AB, H, OnBase, HR, R, RBI, SB, AVG, OBP)
   
   # Remove players already considered in the above position(s)
   return(new("Baseline", players = comp, 
@@ -64,8 +65,9 @@ bReplacement2 <- function(pos, num, data){
     mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
     mutate(PlayerName = paste0("Replacement, ", pos),
            Team = "",
-           H = round(AVG * AB, 0)) %>%
-    select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
+           H = round(AVG * AB, 0),
+           OnBase = round(OBP * PA, 0)) %>%
+    select(PlayerName, Team, PA, AB, H, OnBase, HR, R, RBI, SB, AVG, OBP)
   
   # Remove players already considered in the above position(s)
   return(new("Baseline", players = repl, 
