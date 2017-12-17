@@ -1,10 +1,12 @@
-set.seed(1)
-n <- 10000
-
 ## Batters
 
 bSims <- dcb[as.numeric(rep(row.names(dcb), n)), ] %>%
-  filter(PA > 50)
+  arrange(PlayerName)
+
+simNum <- rep(1:n, length(dcb$PlayerName))
+bSims <- cbind(bSims, simNum)
+
+bSims <- bSims %>% filter(PA > 50)
 
 # PAs are rounded up or down with probability based on decimal remaining
 paSim <- floor(bSims$PA / wks) + rbinom(length(bSims$PA), 1, 
@@ -40,12 +42,17 @@ sbSim <- rpois(length(bSims$PA),
 bSims <- cbind(bSims, rSim, rbiSim, sbSim)
 
 # Clean up workspace
-rm(dcb, abSim, hrSim, hSim, noabSim, paSim, rbiSim, rSim, sbSim)
+rm(dcb, abSim, hrSim, hSim, noabSim, paSim, rbiSim, rSim, sbSim, simNum)
 
 ## Pitchers
 
 pSims <- dcp[as.numeric(rep(row.names(dcp), n)), ] %>%
-  filter(IP > 10)
+  arrange(PlayerName)
+
+simNum <- rep(1:n, length(dcp$PlayerName))
+pSims <- cbind(pSims, simNum)
+
+pSims <- pSims %>% filter(IP > 10)
 
 # Games are rounded up or down with probability based on decimal remaining
 gSim <- floor(pSims$G / wks) + rbinom(length(pSims$G), 1, 
@@ -75,4 +82,4 @@ bb_hSim <- rpois(length(pSims$G), pSims$ipSim * pSims$BB_H / pSims$IP)
 pSims <- cbind(pSims, soSim, erSim, bb_hSim)
 
 # Clean up workspace
-rm(dcp, bb_hSim, erSim, gSim, ipSim, soSim, svSim, wSim)
+rm(dcp, bb_hSim, erSim, gSim, ipSim, soSim, svSim, wSim, simNum)
