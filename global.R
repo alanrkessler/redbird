@@ -16,7 +16,7 @@ wks <- 24
 # Random seed
 set.seed(9615)
 # Number of simulations
-n <- 10000
+n <- 1000
 
 # Positions including "All" (for draft sheet filter)
 positionsAll <- c("All", "C", "1B", "2B", "3B", "SS", "OF", "SP", "RP", "P")
@@ -30,5 +30,5 @@ source("baseline.R")
 # Simulate weeks for individual players
 source("sims.R")
 
-
-
+# Aggregate simulations
+source("aggregation.R")

@@ -3,30 +3,36 @@ shinyServer(function(input, output, session) {
      # tabPanel 1 - Draft Board
      
      # Add deleted players to a list
-     myValues <- reactiveValues(p2List = "Baseline",
-                                p2Sel = "Baseline",
-                                p3List = "Baseline",
-                                p3Sel = "Baseline",
-                                p4List = "Baseline",
-                                p4Sel = "Baseline",
-                                p5List = "Baseline",
-                                p5Sel = "Baseline",
-                                p6List = "Baseline",
-                                p6Sel = "Baseline",
-                                poList = "Baseline",
-                                p7Sel = "Baseline",
-                                p8Sel = "Baseline",
-                                p9Sel = "Baseline",
-                                p1List = "Baseline",
-                                p1Sel1 = "Baseline",
-                                p1Sel2 = "Baseline",
-                                p1Sel3 = "Baseline",
-                                p1Sel4 = "Baseline",
-                                prList = "Baseline",
-                                prSel = "Baseline",
-                                pList = "Baseline",
-                                pSel1 = "Baseline",
-                                pSel2 = "Baseline")
+     myValues <- reactiveValues(p2List = "Replacement, C",
+                                p2Sel = "Replacement, C",
+                                p3List = "Replacement, 1B",
+                                p3Sel = "Replacement, 1B",
+                                p4List = "Replacement, 2B",
+                                p4Sel = "Replacement, 2B",
+                                p5List = "Replacement, 3B",
+                                p5Sel = "Replacement, 3B",
+                                p6List = "Replacement, SS",
+                                p6Sel = "Replacement, SS",
+                                poList = c("Replacement, OF 1", 
+                                           "Replacement, OF 2", 
+                                           "Replacement, OF 3"),
+                                p7Sel = "Replacement, OF 1",
+                                p8Sel = "Replacement, OF 2",
+                                p9Sel = "Replacement, OF 3",
+                                p1List = c("Replacement, SP 1", 
+                                           "Replacement, SP 2", 
+                                           "Replacement, SP 3",
+                                           "Replacement, SP 4"),
+                                p1Sel1 = "Replacement, SP 1",
+                                p1Sel2 = "Replacement, SP 2",
+                                p1Sel3 = "Replacement, SP 3",
+                                p1Sel4 = "Replacement, SP 4",
+                                prList = "Replacement, RP",
+                                prSel = "Replacement, RP",
+                                pList = c("Replacement, P 1", 
+                                          "Replacement, P 2"),
+                                pSel1 = "Replacement, P 1",
+                                pSel2 = "Replacement, P 2")
      observe({
           if(input$delete.button == 0)
               return()
@@ -86,7 +92,7 @@ shinyServer(function(input, output, session) {
        myValues$teamList
        if (grepl("C", allPlayers[allPlayers$PlayerName == tail(myValues$teamList, 1), ]$POS) == TRUE) {
          myValues$p2List <- c(isolate(myValues$p2List), tail(myValues$teamList, 1))
-         if (isolate(myValues$p2Sel) == "Baseline") {
+         if (isolate(myValues$p2Sel) == "Replacement, C") {
            myValues$p2Sel <- tail(myValues$teamList, 1)
          }
          updateSelectInput(session = session, inputId = "p2.input", 
@@ -95,7 +101,7 @@ shinyServer(function(input, output, session) {
        }
        else if (grepl("SS", allPlayers[allPlayers$PlayerName == tail(myValues$teamList, 1), ]$POS) == TRUE) {
          myValues$p6List <- c(isolate(myValues$p6List), tail(myValues$teamList, 1))
-         if (isolate(myValues$p6Sel) == "Baseline") {
+         if (isolate(myValues$p6Sel) == "Replacement, SS") {
            myValues$p6Sel <- tail(myValues$teamList, 1)
          }
          updateSelectInput(session = session, inputId = "p6.input", 
@@ -104,7 +110,7 @@ shinyServer(function(input, output, session) {
        }
        else if (grepl("2B", allPlayers[allPlayers$PlayerName == tail(myValues$teamList, 1), ]$POS) == TRUE) {
          myValues$p4List <- c(isolate(myValues$p4List), tail(myValues$teamList, 1))
-         if (isolate(myValues$p4Sel) == "Baseline") {
+         if (isolate(myValues$p4Sel) == "Replacement, 2B") {
            myValues$p4Sel <- tail(myValues$teamList, 1)
          }
          updateSelectInput(session = session, inputId = "p4.input", 
@@ -113,7 +119,7 @@ shinyServer(function(input, output, session) {
        }
        else if (grepl("3B", allPlayers[allPlayers$PlayerName == tail(myValues$teamList, 1), ]$POS) == TRUE) {
          myValues$p5List <- c(isolate(myValues$p5List), tail(myValues$teamList, 1))
-         if (isolate(myValues$p5Sel) == "Baseline") {
+         if (isolate(myValues$p5Sel) == "Replacement, 3B") {
            myValues$p5Sel <- tail(myValues$teamList, 1)
          }
          updateSelectInput(session = session, inputId = "p5.input", 
@@ -122,13 +128,13 @@ shinyServer(function(input, output, session) {
        }
        else if (grepl("OF", allPlayers[allPlayers$PlayerName == tail(myValues$teamList, 1), ]$POS) == TRUE) {
          myValues$poList <- c(isolate(myValues$poList), tail(myValues$teamList, 1))
-         if (isolate(myValues$p7Sel) == "Baseline") {
+         if (isolate(myValues$p7Sel) == "Replacement, OF 1") {
            myValues$p7Sel <- tail(myValues$teamList, 1)
          }
-         else if (isolate(myValues$p8Sel) == "Baseline") {
+         else if (isolate(myValues$p8Sel) == "Replacement, OF 2") {
            myValues$p8Sel <- tail(myValues$teamList, 1)
          }
-         else if (isolate(myValues$p9Sel) == "Baseline") {
+         else if (isolate(myValues$p9Sel) == "Replacement, OF 3") {
            myValues$p9Sel <- tail(myValues$teamList, 1)
          }
          updateSelectInput(session = session, inputId = "p7.input", 
@@ -143,7 +149,7 @@ shinyServer(function(input, output, session) {
        }
        else if (grepl("1B", allPlayers[allPlayers$PlayerName == tail(myValues$teamList, 1), ]$POS) == TRUE) {
          myValues$p3List <- c(isolate(myValues$p3List), tail(myValues$teamList, 1))
-         if (isolate(myValues$p3Sel) == "Baseline") {
+         if (isolate(myValues$p3Sel) == "Replacement, 1B") {
            myValues$p3Sel <- tail(myValues$teamList, 1)
          }
          updateSelectInput(session = session, inputId = "p3.input", 
@@ -153,17 +159,23 @@ shinyServer(function(input, output, session) {
        else if (grepl("SP", allPlayers[allPlayers$PlayerName == tail(myValues$teamList, 1), ]$POS) == TRUE) {
          myValues$p1List <- c(isolate(myValues$p1List), tail(myValues$teamList, 1))
          myValues$pList <- c(isolate(myValues$pList), tail(myValues$teamList, 1))
-         if (isolate(myValues$p1Sel1) == "Baseline") {
+         if (isolate(myValues$p1Sel1) == "Replacement, SP 1") {
            myValues$p1Sel1 <- tail(myValues$teamList, 1)
          }
-         else if (isolate(myValues$p1Sel2) == "Baseline") {
+         else if (isolate(myValues$p1Sel2) == "Replacement, SP 2") {
            myValues$p1Sel2 <- tail(myValues$teamList, 1)
          }
-         else if (isolate(myValues$p1Sel3) == "Baseline") {
+         else if (isolate(myValues$p1Sel3) == "Replacement, SP 3") {
            myValues$p1Sel3 <- tail(myValues$teamList, 1)
          }
-         else if (isolate(myValues$p1Sel4) == "Baseline") {
+         else if (isolate(myValues$p1Sel4) == "Replacement, SP 4") {
            myValues$p1Sel4 <- tail(myValues$teamList, 1)
+         }
+         else if (isolate(myValues$pSel1) == "Replacement, P 1") {
+           myValues$pSel1 <- tail(myValues$teamList, 1)
+         }
+         else if (isolate(myValues$pSel2) == "Replacement, P 2") {
+           myValues$pSel2 <- tail(myValues$teamList, 1)
          }
          updateSelectInput(session = session, inputId = "p1.input1", 
                            choices = myValues$p1List,
@@ -187,8 +199,14 @@ shinyServer(function(input, output, session) {
        else if (grepl("RP", allPlayers[allPlayers$PlayerName == tail(myValues$teamList, 1), ]$POS) == TRUE) {
          myValues$prList <- c(isolate(myValues$prList), tail(myValues$teamList, 1))
          myValues$pList <- c(isolate(myValues$pList), tail(myValues$teamList, 1))
-         if (isolate(myValues$prSel) == "Baseline") {
+         if (isolate(myValues$prSel) == "Replacement, RP") {
            myValues$prSel <- tail(myValues$teamList, 1)
+         }
+         else if (isolate(myValues$pSel1) == "Replacement, P 1") {
+           myValues$pSel1 <- tail(myValues$teamList, 1)
+         }
+         else if (isolate(myValues$pSel2) == "Replacement, P 2") {
+           myValues$pSel2 <- tail(myValues$teamList, 1)
          }
          updateSelectInput(session = session, inputId = "pr.input", 
                            choices = myValues$prList,
@@ -202,10 +220,10 @@ shinyServer(function(input, output, session) {
        }
        else if (grepl("P", allPlayers[allPlayers$PlayerName == tail(myValues$teamList, 1), ]$POS) == TRUE) {
          myValues$pList <- c(isolate(myValues$pList), tail(myValues$teamList, 1))
-         if (isolate(myValues$pSel1) == "Baseline") {
+         if (isolate(myValues$pSel1) == "Replacement, P 1") {
            myValues$pSel1 <- tail(myValues$teamList, 1)
          }
-         else if (isolate(myValues$pSel2) == "Baseline") {
+         else if (isolate(myValues$pSel2) == "Replacement, P 2") {
            myValues$pSel2 <- tail(myValues$teamList, 1)
          }
          updateSelectInput(session = session, inputId = "p.input1", 
@@ -217,14 +235,115 @@ shinyServer(function(input, output, session) {
        }
      })
      
-     # Save dataframe of players drafted 
-     teamProjB <- reactive({
-       allPlayers[(allPlayers$PlayerName %in% myValues$teamList), ]
+     # Current simulated results - batting
+     cbTeamSims <- reactive({
+       brStats[brStats$PlayerName %in% c(input$p2.input, input$p3.input,
+                                         input$p4.input, input$p5.input,
+                                         input$p6.input, input$p7.input,
+                                         input$p8.input, input$p9.input), ]
+     })
+     
+     # Current simulated results - pitching
+     cpTeamSims <- reactive({
+       prStats[prStats$PlayerName %in% c(input$p1.input1, input$p1.input2,
+                                         input$p1.input3, input$p1.input4,
+                                         input$pr.input, input$p.input1,
+                                         input$p.input2), ]
+     })
+     
+     # Current probabilities
+     cbProbs <- reactive({
+       cbTeamSims() %>%
+         select(-PlayerName, -Team, -PA) %>%
+         group_by(simNum) %>%
+         summarise_all(sum) %>%
+         mutate(avgSim = hSim / abSim) %>%
+         select(-abSim, -hSim) %>%
+         left_join(., bbStats, by = c("simNum")) %>%
+         mutate(AVG = avgSim.x > avgSim.y,
+                RBI = rbiSim.x > rbiSim.y,
+                R = rSim.x > rSim.y,
+                SB = sbSim.x > sbSim.y,
+                HR = hrSim.x > hrSim.y) %>%
+         ungroup() %>%
+         select(AVG, RBI, R, SB, HR) %>%
+         summarise_all(mean)
+     })
+     
+     # Current probabilities
+     cpProbs <- reactive({
+       cpTeamSims() %>%
+         select(-PlayerName, -Team) %>%
+         group_by(simNum) %>%
+         summarise_all(sum) %>%
+         mutate(whipSim = bb_hSim / ipSim,
+                eraSim = 9 * erSim / ipSim) %>%
+         na.omit() %>%
+         select(-ipSim, -bb_hSim, -erSim) %>%
+         left_join(., pbStats, by = c("simNum")) %>%
+         mutate(W = wSim.x > wSim.y,
+                SV = svSim.x > svSim.y,
+                ERA = eraSim.x < eraSim.y,
+                WHIP = whipSim.x < whipSim.y,
+                SO = soSim.x > soSim.y) %>%
+         ungroup() %>%
+         select(W, SV, ERA, WHIP, SO) %>%
+         summarise_all(mean)
+     })
+     
+     cProbs <- reactive({
+       a <- cpTeamSims() %>%
+         select(-PlayerName, -Team) %>%
+         group_by(simNum) %>%
+         summarise_all(sum) %>%
+         mutate(whipSim = bb_hSim / ipSim,
+                eraSim = 9 * erSim / ipSim) %>%
+         na.omit() %>%
+         select(-ipSim, -bb_hSim, -erSim) %>%
+         left_join(., pbStats, by = c("simNum")) %>%
+         mutate(W = wSim.x > wSim.y,
+                SV = svSim.x > svSim.y,
+                ERA = eraSim.x < eraSim.y,
+                WHIP = whipSim.x < whipSim.y,
+                SO = soSim.x > soSim.y) %>%
+         ungroup() %>%
+         select(simNum, W, SV, ERA, WHIP, SO)
+       b <- cbTeamSims() %>%
+         select(-PlayerName, -Team, -PA) %>%
+         group_by(simNum) %>%
+         summarise_all(sum) %>%
+         mutate(avgSim = hSim / abSim) %>%
+         select(-abSim, -hSim) %>%
+         left_join(., bbStats, by = c("simNum")) %>%
+         mutate(AVG = avgSim.x > avgSim.y,
+                RBI = rbiSim.x > rbiSim.y,
+                R = rSim.x > rSim.y,
+                SB = sbSim.x > sbSim.y,
+                HR = hrSim.x > hrSim.y) %>%
+         ungroup() %>%
+         select(simNum, AVG, RBI, R, SB, HR)
+       inner_join(a, b, by = "simNum") %>%
+         mutate(`Win %` = (AVG + RBI + R + SB + HR + W + SV + ERA + WHIP + SO) > 5) %>%
+         select(`Win %`) %>% 
+         summarise_all(mean)
      })
      
      # Display current team
-     output$teamProjB <- DT::renderDataTable({
-       DT::datatable(teamProjB())
+     output$cbProbsDT <- DT::renderDataTable({
+       DT::datatable(cbProbs(), options = list(searching = FALSE, paging = FALSE), rownames = FALSE) %>%
+         formatPercentage(c('AVG', 'RBI', 'R', 'SB', 'HR'), 2)
+     })
+     
+     output$cpProbsDT <- DT::renderDataTable({
+       DT::datatable(cpProbs(), options = list(searching = FALSE, paging = FALSE), rownames = FALSE) %>%
+         formatPercentage(c('W', 'SV', 'ERA', 'WHIP', 'SO'), 2)
+       
+     })
+     
+     output$cProbsDT <- DT::renderDataTable({
+       DT::datatable(cProbs(), options = list(searching = FALSE, paging = FALSE), rownames = FALSE) %>%
+         formatPercentage(c('Win %'), 2)
+       
      })
      
 })
