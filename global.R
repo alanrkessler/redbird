@@ -33,21 +33,20 @@ allPlayers <- rbind(b, p) %>%  # Combine batters and pitchers data
 
 # Import Depth Chart Projections
 dcb <- read_csv("./data/dc_batters.csv") %>%
-  select(Name, Team, PA, AB, H, R, SB, RBI, HR, OBP) %>%
+  select(Name, Team, PA, AB, H, R, SB, RBI, HR) %>%
   mutate(PlayerName = paste0(word(Name, -1), 
                       ", ", word(Name, 1, -2)),
-         AVG = H / AB,
-         OnBase = OBP * PA) %>%
-  select(PlayerName, Team, PA, AB, H, OnBase, HR, R, RBI, SB, AVG, OBP)
+         AVG = H / AB) %>%
+  select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
 
 dcp <- read_csv("./data/dc_pitchers.csv") %>%
-  select(Name, Team, IP, W, SV, SO, ER, BB, H) %>%
+  select(Name, Team, G, IP, W, SV, SO, ER, BB, H) %>%
   mutate(PlayerName = paste0(word(Name, -1), 
                              ", ", word(Name, 1, -2)),
          WHIP = (H + BB) / IP,
          ERA = ER * 9 / IP,
          BB_H = H + BB) %>%
-  select(PlayerName, Team, IP, W, SV, SO, ER, BB_H, WHIP, ERA)
+  select(PlayerName, Team, G, IP, W, SV, SO, ER, BB_H, WHIP, ERA)
   
 # Clean up environment
 rm(b, p)
@@ -61,6 +60,11 @@ positionsAll <- c("All", "C", "1B", "2B", "3B", "SS", "OF", "SP", "RP", "P")
 # List for team drop down
 teamsAll <- c("All", as.character(sort(unique(allPlayers$Team))))
 
+# Create baseline
+source("baseline.R")
+
+# Simulate weeks for individual players
+source("sims.R")
 
 
 

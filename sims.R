@@ -1,11 +1,15 @@
 set.seed(1)
 n <- 10000
-wks <- 24
 
-# PAs are fixed evenly each week
+## Batters
+
 bSims <- dcb[as.numeric(rep(row.names(dcb), n)), ] %>%
-  filter(PA > 50) %>%
-  mutate(paSim = round(PA / wks))
+  filter(PA > 50)
+
+# PAs are rounded up or down with probability based on decimal remaining
+paSim <- floor(bSims$PA / wks) + rbinom(length(bSims$PA), 1, 
+                                      bSims$PA / wks - floor(bSims$PA / wks))
+bSims <- cbind(bSims, paSim)
 
 # Simulate ABs
 abSim <- rhyper(length(bSims$PA), bSims$AB, bSims$PA - bSims$AB, bSims$paSim)
@@ -23,53 +27,52 @@ bSims <- cbind(bSims, hSim)
 hrSim <- rhyper(length(bSims$PA), bSims$HR, bSims$H - bSims$HR, bSims$hSim)
 bSims <- cbind(bSims, hrSim)
 
-# Simulate steals from hits and the proxy for reaching base
-sbSim <- rpois(bSims$hSim + bSims$noabSim, 
-               bSims$SB / (bSims$H + bSims$PA - bSims$AB))
+# Simulate remaining from proxy (not very realistic)
+rSim <- rpois(length(bSims$PA), 
+              (bSims$hSim + bSims$noabSim) * bSims$R / (bSims$H + bSims$PA - bSims$AB))
 
-# Simulate runs from hits and the proxy for reaching base (not realistic)
-rSim <- rpois(bSims$hSim + bSims$noabSim, 
-               bSims$R / (bSims$H + bSims$PA - bSims$AB))
+rbiSim <- rpois(length(bSims$PA), 
+                (bSims$hSim + bSims$noabSim) * bSims$RBI / (bSims$H + bSims$PA - bSims$AB))
 
-# Simulate rbis from hits and the proxy for reaching base (not realistic)
-rbiSim <- rpois(bSims$hSim + bSims$noabSim, 
-               bSims$RBI / (bSims$H + bSims$PA - bSims$AB))
-bSims <- cbind(bSims, rbiSim, rSim, sbSim)
+sbSim <- rpois(length(bSims$PA), 
+               (bSims$hSim + bSims$noabSim) * bSims$SB / (bSims$H + bSims$PA - bSims$AB))
 
+bSims <- cbind(bSims, rSim, rbiSim, sbSim)
 
+# Clean up workspace
+rm(dcb, abSim, hrSim, hSim, noabSim, paSim, rbiSim, rSim, sbSim)
 
+## Pitchers
 
-# Pitcher simulations
-c("IP", "W", "SV", "SO", "ER", "BB_H")
-p_sim <- function(n, wks, df) {
-  df <- df[df$IP > 10, ]
-  wSim <- rpois(n*length(df$W), df$W / (df$IP / wks))
-  svSim <- rpois(n*length(df$W), df$SV / (df$IP / wks))
-  soSim <- rpois(n*length(df$W), df$SO / (df$IP / wks))
-  erSim <- rpois(n*length(df$W), df$ER / (df$IP / wks))
-  bb_hSim <- rpois(n*length(df$W), df$BB_H / (df$IP / wks))
-  ipSim <- rep(df$IP / wks, n)
-  SimNum <- rep(1:n, length(df$W))
-  df <- df[as.numeric(rep(row.names(df), n)), ] 
-  return(cbind(SimNum, df, wSim, svSim, soSim, erSim, bb_hSim, ipSim))
-}
+pSims <- dcp[as.numeric(rep(row.names(dcp), n)), ] %>%
+  filter(IP > 10)
 
-set.seed(2)
-c <- b_sim(100, 24, dcb)
-d <- p_sim(1000, 24, dcp)
+# Games are rounded up or down with probability based on decimal remaining
+gSim <- floor(pSims$G / wks) + rbinom(length(pSims$G), 1, 
+                                      pSims$G / wks - floor(pSims$G / wks))
+pSims <- cbind(pSims, gSim)
 
-#example data
-df <- data.frame(country=c("a", "b", "c"), 
-                 mean=c(1, 10, 100), 
-                 sd=c(1, 2, 10))
+# Simulate wins from games
+wSim <- rbinom(length(pSims$G), pSims$gSim, pSims$W / pSims$G)
+pSims <- cbind(pSims, wSim)
 
-#function which returns a matrix, and takes column vectors as arguments for mean and sd
-normv <- function( n , mean , sd ){
-  out <- rpois( n*length(mean) , mean)
-  df <- df[as.numeric(rep(row.names(df), n)), ]
-  return( cbind(df, out))
-}
+# Simulate saves from non win games
+svSim <- rbinom(length(pSims$G), pSims$gSim - pSims$wSim, pSims$SV / pSims$G)
+pSims <- cbind(pSims, svSim)
 
-#reproducible result (note order of magnitude of rows and input sample data)
-set.seed(1)
-b <- normv( 5 , df$mean , df$sd )
+# Simulate IP for each game
+ipSim <- rpois(length(pSims$G), pSims$gSim * pSims$IP / pSims$G)
+pSims <- cbind(pSims, ipSim)
+
+# Simulate strikeouts from IP
+soSim <- rbinom(length(pSims$G), pSims$ipSim * 3, pSims$SO / (pSims$IP * 3))
+
+# Simulate ER for each IP
+erSim <- rpois(length(pSims$G), pSims$ipSim * pSims$ER / pSims$IP)
+
+# Simulate BB_H for each IP
+bb_hSim <- rpois(length(pSims$G), pSims$ipSim * pSims$BB_H / pSims$IP)
+pSims <- cbind(pSims, soSim, erSim, bb_hSim)
+
+# Clean up workspace
+rm(dcp, bb_hSim, erSim, gSim, ipSim, soSim, svSim, wSim)

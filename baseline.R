@@ -21,9 +21,8 @@ bReplacement1 <- function(pos, num, data){
     mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
     mutate(PlayerName = paste0("Baseline, ", pos),
            Team = "",
-           H = round(AVG * AB, 0),
-           OnBase = round(OBP * PA, 0)) %>%
-    select(PlayerName, Team, PA, AB, H, OnBase, HR, R, RBI, SB, AVG, OBP)
+           H = round(AVG * AB, 0)) %>%
+    select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
   
   # Remove players already considered in the above position(s)
   return(new("Baseline", players = comp, 
@@ -65,9 +64,8 @@ bReplacement2 <- function(pos, num, data){
     mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
     mutate(PlayerName = paste0("Replacement, ", pos),
            Team = "",
-           H = round(AVG * AB, 0),
-           OnBase = round(OBP * PA, 0)) %>%
-    select(PlayerName, Team, PA, AB, H, OnBase, HR, R, RBI, SB, AVG, OBP)
+           H = round(AVG * AB, 0)) %>%
+    select(PlayerName, Team, PA, AB, H, HR, R, RBI, SB, AVG)
   
   # Remove players already considered in the above position(s)
   return(new("Baseline", players = repl, 
@@ -109,12 +107,12 @@ pReplacement1 <- function(pos, num, data){
   # Baseline level player creation
   comp <- dcp[dcp$PlayerName %in% pList[compRange, ]$PlayerName, ] %>%
     summarise_if(is.numeric, mean) %>%
-    mutate_at(c("IP", "W", "SV", "SO", "ER", "BB_H"), round, 0) %>%
+    mutate_at(c("G", "IP", "W", "SV", "SO", "ER", "BB_H"), round, 0) %>%
     mutate(PlayerName = paste0("Baseline, ", pos),
            Team = "",
            BB_H = round(WHIP * IP, 0),
            ER = ERA * IP / 9) %>%
-    select(PlayerName, Team, IP, W, SV, SO, ER, BB_H, WHIP, ERA)
+    select(PlayerName, Team, G, IP, W, SV, SO, ER, BB_H, WHIP, ERA)
   
   # Remove players already considered in the above position(s)
   return(new("Baseline", players = comp, 
@@ -141,12 +139,12 @@ pReplacement2 <- function(pos, num, data){
   # Baseline level player creation
   repl <- dcp[dcp$PlayerName %in% pList[tms*num+1:tms*num+6, ]$PlayerName, ] %>%
     summarise_if(is.numeric, mean) %>%
-    mutate_at(c("IP", "W", "SV", "SO", "ER", "BB_H"), round, 0) %>%
+    mutate_at(c("G", "IP", "W", "SV", "SO", "ER", "BB_H"), round, 0) %>%
     mutate(PlayerName = paste0("Replacement, ", pos),
            Team = "",
            BB_H = round(WHIP * IP, 0),
            ER = ERA * IP / 9) %>%
-    select(PlayerName, Team, IP, W, SV, SO, ER, BB_H, WHIP, ERA)
+    select(PlayerName, Team, G, IP, W, SV, SO, ER, BB_H, WHIP, ERA)
   
   # Remove players already considered in the above position(s)
   return(new("Baseline", players = repl, 
@@ -165,3 +163,7 @@ pCompetitor <- rbind(pCompetitor, pBaseline@players)
 
 # Append to projections
 dcp <- rbind(dcp, pCompetitor)
+
+# Clean up workspace
+rm(bCompetitor, pCompetitor, bReplacement1, bReplacement2, pReplacement1, 
+   pReplacement2, bBaseline, pBaseline, pnr, bnr)
