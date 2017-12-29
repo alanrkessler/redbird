@@ -5,7 +5,9 @@ library(stringr)
 library(dplyr)
 library(readr)
 
-# Players with the same name are an outstanding issue
+# todo: Add ranking
+
+# Players with the same name is an issue not worth fixing for this league
 # Types of stats is an issue
 # Positions and number of teams is an issue
 
@@ -17,6 +19,8 @@ wks <- 24
 set.seed(9615)
 # Number of simulations
 n <- 1000
+# Min innings pitched in a week
+minInnings <- 18
 
 # Positions including "All" (for draft sheet filter)
 positionsAll <- c("All", "C", "1B", "2B", "3B", "SS", "OF", "SP", "RP", "P")

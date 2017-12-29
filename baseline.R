@@ -58,8 +58,11 @@ bReplacement2 <- function(pos, num, data){
   # List of players eligible for positions in priority order
   pList <- data[grepl(pos, bnr$POS) == TRUE, ]
   
+  # Back third of draftees for the average
+  compRange <- round(quantile(1:tms*num, 0.67)):round(quantile(1:tms*num, 0.99))
+  
   # Replacement level player creation
-  repl <- dcb[dcb$PlayerName %in% pList[tms*num+1:tms*num+6, ]$PlayerName, ] %>%
+  repl <- dcb[dcb$PlayerName %in% pList[compRange, ]$PlayerName, ] %>%
     summarise_if(is.numeric, mean) %>%
     mutate_at(c("PA", "AB", "H", "HR", "R", "RBI", "SB"), round, 0) %>%
     mutate(PlayerName = paste0("Replacement, ", pos),
@@ -136,8 +139,11 @@ pReplacement2 <- function(pos, num, data){
   # List of players eligible for positions in priority order
   pList <- data[grepl(pos, pnr$POS) == TRUE, ]
   
+  # Back third of draftees for the average
+  compRange <- round(quantile(1:tms*num, 0.67)):round(quantile(1:tms*num, 0.99))
+  
   # Baseline level player creation
-  repl <- dcp[dcp$PlayerName %in% pList[tms*num+1:tms*num+6, ]$PlayerName, ] %>%
+  repl <- dcp[dcp$PlayerName %in% pList[compRange, ]$PlayerName, ] %>%
     summarise_if(is.numeric, mean) %>%
     mutate_at(c("G", "IP", "W", "SV", "SO", "ER", "BB_H"), round, 0) %>%
     mutate(PlayerName = paste0("Replacement, ", pos),

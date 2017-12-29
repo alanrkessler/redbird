@@ -125,7 +125,7 @@ pbStats <- rbind(pbStats, pbSP1, pbSP2, pbSP3, pbSP4, pbP1, pbP2) %>%
   summarise_all(sum) %>%
   mutate(whipSim = bb_hSim / ipSim,
          eraSim = 9 * erSim / ipSim) %>%
-  select(-ipSim, -erSim, -bb_hSim)
+  select(-erSim, -bb_hSim)
 
 ## Initial Set Pitchers
 
@@ -136,7 +136,7 @@ prSP1 <- pSims %>%
   arrange(sortorder) %>%
   select(-sortorder) %>%
   mutate(simNum = 1:n(),
-         PlayerName = "Replacement SP 1")
+         PlayerName = "Replacement, SP 1")
 
 prSP2 <- pSims %>%
   filter(grepl("Replacement, SP", PlayerName) == TRUE) %>%
@@ -144,7 +144,7 @@ prSP2 <- pSims %>%
   arrange(sortorder) %>%
   select(-sortorder) %>%
   mutate(simNum = 1:n(),
-         PlayerName = "Replacement SP 2")
+         PlayerName = "Replacement, SP 2")
 
 prSP3 <- pSims %>%
   filter(grepl("Replacement, SP", PlayerName) == TRUE) %>%
@@ -152,7 +152,7 @@ prSP3 <- pSims %>%
   arrange(sortorder) %>%
   select(-sortorder) %>%
   mutate(simNum = 1:n(),
-         PlayerName = "Replacement SP 3")
+         PlayerName = "Replacement, SP 3")
 
 prSP4 <- pSims %>%
   filter(grepl("Replacement, SP", PlayerName) == TRUE) %>%
@@ -160,7 +160,7 @@ prSP4 <- pSims %>%
   arrange(sortorder) %>%
   select(-sortorder) %>%
   mutate(simNum = 1:n(),
-         PlayerName = "Replacement SP 4")
+         PlayerName = "Replacement, SP 4")
 
 prP1 <- pSims %>%
   filter(grepl("Replacement, P", PlayerName) == TRUE) %>%
@@ -168,7 +168,7 @@ prP1 <- pSims %>%
   arrange(sortorder) %>%
   select(-sortorder) %>%
   mutate(simNum = 1:n(),
-         PlayerName = "Replacement P 1")
+         PlayerName = "Replacement, P 1")
 
 prP2 <- pSims %>%
   filter(grepl("Replacement, P", PlayerName) == TRUE) %>%
@@ -176,7 +176,7 @@ prP2 <- pSims %>%
   arrange(sortorder) %>%
   select(-sortorder) %>%
   mutate(simNum = 1:n(),
-         PlayerName = "Replacement P 2")
+         PlayerName = "Replacement, P 2")
 
 prStats <- pSims %>%
   filter(grepl("Baseline", PlayerName) == FALSE,

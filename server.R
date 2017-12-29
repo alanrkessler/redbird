@@ -90,7 +90,10 @@ shinyServer(function(input, output, session) {
        if(input$draft.button == 0)
          return()
        myValues$teamList
-       if (grepl("C", allPlayers[allPlayers$PlayerName == tail(myValues$teamList, 1), ]$POS) == TRUE) {
+       if (!any(allPlayers$PlayerName == tail(myValues$teamList, 1))){
+         return()
+       }
+       else if (grepl("C", allPlayers[allPlayers$PlayerName == tail(myValues$teamList, 1), ]$POS) == TRUE) {
          myValues$p2List <- c(isolate(myValues$p2List), tail(myValues$teamList, 1))
          if (isolate(myValues$p2Sel) == "Replacement, C") {
            myValues$p2Sel <- tail(myValues$teamList, 1)
@@ -251,7 +254,7 @@ shinyServer(function(input, output, session) {
                                          input$p.input2), ]
      })
      
-     # Current probabilities
+     # Current batter probabilities
      cbProbs <- reactive({
        cbTeamSims() %>%
          select(-PlayerName, -Team, -PA) %>%
@@ -270,7 +273,7 @@ shinyServer(function(input, output, session) {
          summarise_all(mean)
      })
      
-     # Current probabilities
+     # Current pitcher probabilities
      cpProbs <- reactive({
        cpTeamSims() %>%
          select(-PlayerName, -Team) %>%
@@ -279,14 +282,14 @@ shinyServer(function(input, output, session) {
          mutate(whipSim = bb_hSim / ipSim,
                 eraSim = 9 * erSim / ipSim) %>%
          na.omit() %>%
-         select(-ipSim, -bb_hSim, -erSim) %>%
+         select(-bb_hSim, -erSim) %>%
          left_join(., pbStats, by = c("simNum")) %>%
-         mutate(W = wSim.x > wSim.y,
-                SV = svSim.x > svSim.y,
-                ERA = eraSim.x < eraSim.y,
-                WHIP = whipSim.x < whipSim.y,
-                SO = soSim.x > soSim.y) %>%
          ungroup() %>%
+         mutate(W = ifelse(ipSim.x < minInnings, FALSE, wSim.x > wSim.y),
+                SV = ifelse(ipSim.x < minInnings, FALSE, svSim.x > svSim.y),
+                ERA = ifelse(ipSim.x < minInnings, FALSE, eraSim.x < eraSim.y),
+                WHIP = ifelse(ipSim.x < minInnings, FALSE, whipSim.x < whipSim.y),
+                SO = ifelse(ipSim.x < minInnings, FALSE, soSim.x > soSim.y)) %>%
          select(W, SV, ERA, WHIP, SO) %>%
          summarise_all(mean)
      })
@@ -299,13 +302,13 @@ shinyServer(function(input, output, session) {
          mutate(whipSim = bb_hSim / ipSim,
                 eraSim = 9 * erSim / ipSim) %>%
          na.omit() %>%
-         select(-ipSim, -bb_hSim, -erSim) %>%
+         select(-bb_hSim, -erSim) %>%
          left_join(., pbStats, by = c("simNum")) %>%
-         mutate(W = wSim.x > wSim.y,
-                SV = svSim.x > svSim.y,
-                ERA = eraSim.x < eraSim.y,
-                WHIP = whipSim.x < whipSim.y,
-                SO = soSim.x > soSim.y) %>%
+         mutate(W = ifelse(ipSim.x < minInnings, FALSE, wSim.x > wSim.y),
+                SV = ifelse(ipSim.x < minInnings, FALSE, svSim.x > svSim.y),
+                ERA = ifelse(ipSim.x < minInnings, FALSE, eraSim.x < eraSim.y),
+                WHIP = ifelse(ipSim.x < minInnings, FALSE, whipSim.x < whipSim.y),
+                SO = ifelse(ipSim.x < minInnings, FALSE, soSim.x > soSim.y)) %>%
          ungroup() %>%
          select(simNum, W, SV, ERA, WHIP, SO)
        b <- cbTeamSims() %>%
@@ -345,5 +348,6 @@ shinyServer(function(input, output, session) {
          formatPercentage(c('Win %'), 2)
        
      })
+     
      
 })
