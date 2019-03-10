@@ -1,68 +1,38 @@
-shinyUI(navbarPage("Fantasy Baseball Draft App",
+shinyUI(navbarPage("Fantasy Baseball Draft Helper App",
      tabPanel("Draft Board",
           fluidPage(
                fluidRow(align="left",
-                    # Selection list for position
-                    column(4, selectInput('posa', 'Position', positions.all)),
-                    # Selection list for position
-                    column(4, selectInput('teama', 'Team', teams.all)),
+                        
                     # Text input to remove players when they are drafted
-                    column(4, strong('Player'), br(),
-                           textInput.typeahead(id = "text", 
+                    column(4, style='padding:0px;', strong('Player'), 
+                           div(style = "height:6px;background-color: white;"),
+                           textInput.typeahead(id = "text",
                                                placeholder = "", 
-                                               local = autocomplete.list,
+                                               local = autocompleteList,
                                                valueKey = "PlayerName",
-                                               tokens = c(1:dim(autocomplete.list)[1]),
-                                               template="<p class='repo-language'>{{info}}</p> <p class='repo-name'>{{PlayerName}}</p>")),
+                                               tokens = c(1:dim(autocompleteList)[1]),
+                                               template="<p class='repo-language'>{{info}}</p> <p class='repo-name'>{{PlayerName}}</p>"),
+                           div(style = "height:6px;background-color: white;"),
+                           # Delete (Someone else drafted this player)
+                           shiny::actionButton(inputId = "delete.button", 
+                                               label = "Remove", width = "100px", 
+                                               icon("remove"), 
+                                               style="color: #fff; background-color: #FB6A4A; border-color: #FB6A4A"),
+                           numericInput('adjustment', 'Pitcher Mult', 1,
+                                        min = 0, max = 10, step = 0.1, 
+                                        width = '40%')),
                     
-                    # Delete button 
-                    column(4, br(), actionButton(inputId = "delete.button", label = "Delete", icon = icon("minus")))
+                    # Selection list for position
+                    column(4, offset = 0, 
+                           selectInput('pos.input', 'Position', 
+                                       positionsAll, width = '50%'), 
+                           selectInput('team.input', 'Team', 
+                                       teamsAll, width = '50%'))
                ),
                fluidRow(align = "center",
                     # Draft sheet
                     DT::dataTableOutput("sheet")
                )
           )
-     ),
-     tabPanel("Player Tiers",
-              fluidPage(
-                   fluidRow(align = "center",
-                        # Display tiers after removing drafted players
-                        h4("Current Tiers"),
-                        DT::dataTableOutput("tierc")
-                   ),
-                   fluidRow(align = "center",
-                        # Display tiers at the start of the draft
-                        h4("Starting Tiers"),
-                        DT::dataTableOutput("tiers")
-                   )
-              )
-     ),
-     tabPanel("Plots",
-              fluidPage(
-                   fluidRow(align = "left",
-                        # Selection list for position
-                        column(4, selectInput('pos', 'Position', positions)),
-                        # Choose plotting by overall rank or position rank
-                        column(4, selectInput('xvar', 'Rank', xaxis)),
-                        column(4, selectInput('drft', 'Show Drafted', c("Yes", "No")))
-                   ),
-                   fluidRow(align = "center",
-                        h4("Talent by Position Rank"),
-                        ggvisOutput("plot1")
-                   ),
-                   fluidRow(align = "center",
-                        uiOutput("ui")
-                   ),
-                   fluidRow(align = "center",
-                            h4("ADP by Position Rank"),
-                            ggvisOutput("plot2")
-                   )
-              )
-     ),
-     tabPanel("Help",
-              fluidPage(
-                   includeMarkdown("README.md")     
-              )
      )
      ))
